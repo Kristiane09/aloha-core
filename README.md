@@ -1,33 +1,32 @@
-# ![Logo](chrome/app/theme/chromium/product_logo_64.png) Chromium
+import re
+from datetime import datetime
 
-Chromium is an open-source browser project that aims to build a safer, faster,
-and more stable way for all users to experience the web.
+def validate_nric(nric):
+    # NRIC format: YYMMDD-XX-YYYY
+    pattern = re.compile(r'^\d{6}-\d{2}-\d{4}$')
+    if not pattern.match(nric):
+        return False
 
-The project's web site is https://www.chromium.org.
+    # Extract date of birth
+    dob = nric[:6]
+    try:
+        birth_date = datetime.strptime(dob, '%y%m%d')
+        if birth_date > datetime.now():
+            birth_date = birth_date.replace(year=birth_date.year - 100)
+    except ValueError:
+        return False
 
-To check out the source code locally, don't use `git clone`! Instead,
-follow [the instructions on how to get the code](docs/get_the_code.md).
+    # Check validity of the state code (XX)
+    state_code = int(nric[7:9])
+    valid_state_codes = list(range(1, 17)) + list(range(21, 24)) + [30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99]
+    if state_code not in valid_state_codes:
+        return False
 
-Documentation in the source is rooted in [docs/README.md](docs/README.md).
+    return True
 
-Learn how to [Get Around the Chromium Source Code Directory
-Structure](https://www.chromium.org/developers/how-tos/getting-around-the-chrome-source-code).
-
-For historical reasons, there are some small top level directories. Now the
-guidance is that new top level directories are for product (e.g. Chrome,
-Android WebView, Ash). Even if these products have multiple executables, the
-code should be in subdirectories of the product.
-
-If you found a bug, please file it at https://crbug.com/new.
-
-
-## Eyeo Chromium SDK
-
-Eyeo Chromium SDK is a fork of the Chromium project that
-integrates ad-filtering capabilities.  A big part of the functionality is
-implemented inside a component, to simplify the integration with other
-modifications to the browser.
-
-The [component folder](components/adblock) contains most of the source code,
-as well as the changelog, license and technical documentation about
-architecture and integration steps.
+# Example usage
+nric = "930509-28-0809"
+if validate_nric(nric):
+    print("Valid NRIC")
+else:
+    print("Invalid NRIC")
